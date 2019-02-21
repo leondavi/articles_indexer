@@ -3,8 +3,10 @@ import os
 import re #Regular Expression lib
 import pandas as pd
 import numpy as np
+import datetime
 
 cwd = os.getcwd()
+ref_file_name = "references.txt"
 NULL_IDX = -1
 
 '''
@@ -70,15 +72,25 @@ def renaming_articles_names(articles_list):
     return articles_list_by_ref_num
 
 def main():
+    if os.path.isfile(ref_file_name):
+        os.remove(ref_file_name)
+        print("references.txt was removed.")
+    res_file = open(ref_file_name,"w+")
     print("Generating articles list")
     articles_list = get_pdf_files()
     print("Renaming, adding refrences indexes")
     articles_dict = renaming_articles_names(articles_list)
 
+    res_file.write(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y\n\n"))
+    res_file.write("Articles: \n----------\n\n")
+    res_file.write("{:<8} {:<15}".format('[#]','Article')+"\n")
     print("Articles: \n----------\n\n")
     print("{:<8} {:<15}".format('[#]','Article'))
     for k,v in sorted(articles_dict.items()):
         print("{:<8} {:<15}".format(k, v))
+        res_file.write("{:<8} {:<15}".format(k, v)+"\n")
+
+    res_file.close()
 
 if __name__ == '__main__':
     main()
