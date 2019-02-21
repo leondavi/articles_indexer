@@ -75,7 +75,7 @@ def main():
     if os.path.isfile(ref_file_name):
         os.remove(ref_file_name)
         print("references.txt was removed.")
-    res_file = open(ref_file_name,"w+")
+    res_file = open(ref_file_name,"w+",encoding='utf-8')#UTF 8 windows issue fix
     print("Generating articles list")
     articles_list = get_pdf_files()
     print("Renaming, adding refrences indexes")
