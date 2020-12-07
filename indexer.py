@@ -4,6 +4,7 @@ import re #Regular Expression lib
 import pandas as pd
 import numpy as np
 import datetime
+import sys
 
 cwd = os.getcwd()
 ref_file_name = "references.txt"
@@ -31,6 +32,16 @@ def split_ref_number(name_with_ref_num):
         ref_string = ref_string.replace("[", "").replace("]", "")
         return int(ref_string),name_without_ref_num.lstrip() #return reference number and the name without the reference
     return name_with_ref_num
+
+def remove_ref_number(name_with_ref_num):
+    regex = re.compile(r'\[(\d*)\]')
+    match = regex.search(name_with_ref_num)
+    if match != None:
+        ref_string = name_with_ref_num[match.start():match.end()]
+        name_without_ref_num = name_with_ref_num.replace(ref_string, "").lstrip()
+        return name_without_ref_num
+    return name_with_ref_num
+
 
 def get_pdf_files():
     pdf_files = []
@@ -72,12 +83,27 @@ def renaming_articles_names(articles_list):
     return articles_list_by_ref_num
 
 def main():
+    remove_flag = False
+    if len(sys.argv) > 1:
+        for arg in sys.argv:
+            if arg == "-r":
+                remove_flag = True
+
     if os.path.isfile(ref_file_name):
         os.remove(ref_file_name)
         print("references.txt was removed.")
     res_file = open(ref_file_name,"w+",encoding='utf-8')#UTF 8 windows issue fix
     print("Generating articles list")
     articles_list = get_pdf_files()
+    if remove_flag:
+        print("Removing indexes from articles")
+        for pdf_file in articles_list:
+            ref_status = check_if_contain_ref_num(pdf_file)
+            if ref_status != NULL_IDX:
+                os.rename(pdf_file,remove_ref_number(pdf_file))
+        return
+
+
     print("Renaming, adding refrences indexes")
     articles_dict = renaming_articles_names(articles_list)
 
